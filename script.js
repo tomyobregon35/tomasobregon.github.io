@@ -90,12 +90,29 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // --- INICIALIZACIÓN AL CARGAR LA PÁGINA ---
+// --- INICIALIZACIÓN AL CARGAR LA PÁGINA ---
         const savedTheme = localStorage.getItem('theme') || 'dark';
-        const savedLang = localStorage.getItem('language') || 'en';
-        
         setTheme(savedTheme);
-        setLanguage(savedLang); // Esto aplica el idioma y las traducciones guardadas
+
+        // 1. Detectar si hay un parámetro ?lang= en la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+
+        // 2. Decidir el idioma final (Prioridad: URL > LocalStorage > Default 'en')
+        let finalLang = urlLang || localStorage.getItem('language') || 'en';
+
+        // 3. Validación de seguridad (solo permitimos 'es' o 'en')
+        if (finalLang !== 'es' && finalLang !== 'en') {
+            finalLang = 'en';
+        }
+
+        // 4. Aplicar idioma
+        setLanguage(finalLang);
+
+        // 5. Si vino por URL, guardamos la preferencia para futuras visitas
+        if (urlLang) {
+            localStorage.setItem('language', finalLang);
+        }
 
         copyrightYearSpan.textContent = new Date().getFullYear();
     };
